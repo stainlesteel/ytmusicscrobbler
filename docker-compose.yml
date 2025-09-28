@@ -1,0 +1,13 @@
+services:
+  ytmusicscrobbler:
+    container_name: ytmusicscrobbler
+    build: .
+    restart: unless-stopped
+    volumes:
+      - /path:/config # this is for saving the browser.json file and history.txt
+    ports:
+      - 8000:8000 # this is for the web ui
+    environment:
+      - TZ=Etc/UTC
+      - LASTFM_API_KEY=
+      - LASTFM_API_SECRET=# docs to get keys/secret are available below in setup header

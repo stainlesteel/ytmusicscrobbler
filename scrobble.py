@@ -228,16 +228,48 @@ def login():
         print(e)
         raise e
 
+def lastfm_auth(network):
+    """Access write access to LastFM account"""
+    if os.path.isfile(PATH + '.session_key'):
+        # if file already exists, read it from config and send that
+        # to lastfm network
+        with open(PATH + '.session_key', 'r') as f:
+            sess_key = f.read()
+        print('A session key for LastFM was already found. Skipping URL creation..')
+        return sess_key
+    else:
+        skg = pylast.SessionKeyGenerator(network)
+        # generate a url and send it to the user
+        url = skg.get_web_auth_url()
+        print('Please access this url to allow write access for LastFM.', url)
+
+        while True:
+            try:
+                # pylast will try to access a session_key from that url
+                # if the user has authenticated properly, it should find one
+                sess_key = skg.get_web_auth_session_key(url)
+                with open(PATH + '.session_key', 'w') as f:
+                    f.write(sess_key)
+                print('LastFM Session Key accessed and saved.')
+                # afterwards, save the key so it can be reused later
+                break
+            except pylast.WSError:
+                print("User hasn't authenticated yet to LastFM, trying again..")
+                time.sleep(3)
+                # if user hasn't authenticated yet, wait a second
+                # and try again
+        return sess_key
 
 def scrobble():
     """Main loop to scrobble songs to last.fm"""
-    # Connect to last.fm api using keys and credentials defined in environment variables
+    # Connect to last.fm api using keys defined in environment variables
     network = pylast.LastFMNetwork(
         api_key=os.environ.get('LASTFM_API_KEY'),
         api_secret=os.environ.get('LASTFM_API_SECRET'),
-        username=os.environ.get('LASTFM_USERNAME'),
-        password_hash=pylast.md5(os.environ.get('LASTFM_PASSWORD')),
     )
+    # After that, run function to access write operations for LastFM
+    session_key = lastfm_auth(network)
+    network.session_key = session_key
     ytmusic = login()
     history = update_history(ytmusic)
     test = ''
@@ -271,10 +303,8 @@ def scrobble():
         time.sleep(SLEEP)  # Avoids hitting youtube's api too quickly.
         history = update_history(ytmusic)
 
-
 if os.path.isfile(PATH + 'browser.json'):
     scrobble()
-
 else:
     print('Please open a web browser to the web ui of this container.')
     threading.Thread(target=lambda: app.run(host="0.0.0.0",

@@ -4,3 +4,5 @@ lib/
 pyvenv.cfg
 .env
 config/browser.json
+testing/
+.session_key
