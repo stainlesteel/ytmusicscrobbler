@@ -1,7 +1,7 @@
 services:
   ytmusicscrobbler:
     container_name: ytmusicscrobbler
-    build: .
+    image: micahfocht/ytmusicscrobbler:latest
     restart: unless-stopped
     volumes:
       - /path:/config # this is for saving the browser.json file and history.txt
