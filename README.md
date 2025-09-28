@@ -1,9 +1,16 @@
 # ytmusicscrobbler
+Scrobbles music from YouTube Music history to LastFM
 
-Youtube music authentication is handled internally in the container using oauth.
-Once the container is running, run the command "cd /config && ytmusicapi oauth" in the container and navigate to the url and sign in. Then go back to the container and press enter. The container will then exit and, assuming restart policy is set to "unless stopped" will restart. It is recommended that you use the "unless stopped" restart policy as youtube's api does not always reply as expected and this can cause an application crash. There is a mechanism to prevent duplicate scrobbles after a container restart.
+## Setup
+### YouTube Music Authentication 
+Youtube music authentication is handled manually (by the user) via pasting cookie data to a Web UI.
 
-Last FM requires an API key, available here https://www.last.fm/api/authentication. Last FM authentication relies on the following environment variables
+Once the container is running, go to a web browser, and go to the URL of the container (i.e. http://{ip_address_of_server}:{docker_port}). You will see a page explaining how to get your cookies from YouTube Music and to the app, once you've done so, check the logs of the docker container (i.e. `docker logs ytmusicscrobbler` or the GUI/Web UI app of your choice). 
+
+If you see nothing, that is an indicator that YT Music is successfully authenticated with this app, but if you see a python error or a error message, you'll have to try again on the previous URL.
+
+### LastFM Authentication
+Last FM  an API key, available here https://www.last.fm/api/authentication. Last FM authentication relies on the following environment variables
 
 LASTFM_API_KEY
 
