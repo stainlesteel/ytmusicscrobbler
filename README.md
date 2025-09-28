@@ -41,6 +41,7 @@ LASTFM_API_KEY
 
 LASTFM_API_SECRET
 
+After running the docker container (and you have authenticated YouTube Music), docker logs will request to enter a LastFM URL in your browser, to give access to this app. After you have done so, it will start to scrobble your YouTube Music history. 
 ### Optional Variables
 There are two more environment variables you can add depending on your needs.
 
