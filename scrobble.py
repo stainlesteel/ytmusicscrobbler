@@ -254,7 +254,6 @@ def lastfm_auth(network):
                 # afterwards, save the key so it can be reused later
                 break
             except pylast.WSError:
-                print("User hasn't authenticated yet to LastFM, trying again..")
                 time.sleep(3)
                 # if user hasn't authenticated yet, wait a second
                 # and try again
@@ -263,13 +262,22 @@ def lastfm_auth(network):
 def scrobble():
     """Main loop to scrobble songs to last.fm"""
     # Connect to last.fm api using keys defined in environment variables
-    network = pylast.LastFMNetwork(
-        api_key=os.environ.get('LASTFM_API_KEY'),
-        api_secret=os.environ.get('LASTFM_API_SECRET'),
-    )
-    # After that, run function to access write operations for LastFM
-    session_key = lastfm_auth(network)
-    network.session_key = session_key
+    # if user has already authenticated from a previous release, run this instead
+    if os.environ.get('LASTFM_USERNAME') and os.environ.get('LASTFM_PASSWORD'):
+        network = pylast.LastFMNetwork(
+            api_key=os.environ.get('LASTFM_API_KEY'),
+            api_secret=os.environ.get('LASTFM_API_SECRET'),
+            username=os.environ.get('LASTFM_USERNAME'),
+            password_hash=pylast.md5(os.environ.get('LASTFM_PASSWORD')),
+        ) # otherwise, run as normal
+    else:
+        network = pylast.LastFMNetwork(
+            api_key=os.environ.get('LASTFM_API_KEY'),
+            api_secret=os.environ.get('LASTFM_API_SECRET'),
+        )
+        # After that, run function to access write operations for LastFM
+        session_key = lastfm_auth(network)
+        network.session_key = session_key
     ytmusic = login()
     history = update_history(ytmusic)
     test = ''
